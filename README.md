@@ -150,8 +150,8 @@ class MyPyRemoteDev(Thread):
     slave.join()
 ```
 
-## PyRemoteDev as service
-You can launch pyremotedev as service (only available on linux env).
+## RemoteDev as service
+You can launch remotedev as service (only available on linux env).
 ```
 With systemd:
 systemctl start remotedev.service
@@ -161,4 +161,4 @@ With init:
 ```
 
 ### Configuration
-By default pyremotedev service will load your first profile and start with execution env behavior, but you can override this behavior specifying the profile to launch on /etc/default/remotedev.conf.
+By default remotedev service will load your first profile and start with execution env behavior, but you can override this behavior specifying the profile to launch on /etc/default/remotedev.conf.
