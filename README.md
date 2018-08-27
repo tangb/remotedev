@@ -132,11 +132,11 @@ class MyPyRemoteDev(Thread):
     self.running = False
     
   def run(self):
-    slave = None
+    remotedev = None
     try:
-      #start pyremotedev with internal remote logging (catch all message from app logger)
-      slave = pyremotedev.PyRemoteDevSlave(PROFILE, remote_logging=True)
-      slave.start()
+      #start remotedev with internal remote logging (catch all message from app logger)
+      remotedev = pyremotedev.PyRemoteExec(PROFILE, remote_logging=True)
+      remotedev.start()
 
       while self.running:
         time.sleep(0.25)
@@ -145,9 +145,9 @@ class MyPyRemoteDev(Thread):
       logging.exception(u'Exception occured during pyremotedev execution:')
 
     finally:
-      slave.stop()
+      remotedev.stop()
 
-    slave.join()
+    remotedev.join()
 ```
 
 ## RemoteDev as service

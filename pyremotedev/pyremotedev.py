@@ -35,8 +35,8 @@ try:
     _unicode = unicode
 except NameError:
     _unicode = str
-from localrepositoryhandler import LocalRepositoryHandler
-from synchronizer import SynchronizerDevEnv, SynchronizerExecEnv
+from .localrepositoryhandler import LocalRepositoryHandler
+from .synchronizer import SynchronizerDevEnv, SynchronizerExecEnv
 
 
 class PyRemoteDev(Thread):
@@ -61,7 +61,7 @@ class PyRemoteDev(Thread):
         
     def stop(self):
         """
-        Stop master
+        Stop devenv process
         """
         self.running = False
 
@@ -138,7 +138,7 @@ class PyRemoteExec(Thread):
 
     def stop(self):
         """
-        Stop master
+        Stop execenv process
         """
         self.running = False
 

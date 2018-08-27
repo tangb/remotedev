@@ -310,14 +310,11 @@ class SynchronizerDevEnv(Thread):
                 #test if remote service is really running
                 self.logger.debug(u'Testing connection sending PING...')
                 ping = RequestPing()
-                for i in range(8):
-                    self.socket.sendobj(ping.to_dict())
-                    req = self.socket.recvobj()
-                    if req[u'_type'] == REQUEST_PONG:
-                        self.logger.debug(u'Received PONG, connection is ok')
-                        break
-
-                self.__socket_connected = True
+                self.socket.sendobj(ping.to_dict())
+                req = self.socket.recvobj()
+                if req and req[u'_type'] == REQUEST_PONG:
+                    self.logger.debug(u'Received PONG, connection is ok')
+                    self.__socket_connected = True
 
             else:
                 #disconnected tunnel ?

@@ -19,7 +19,8 @@ except Exception:
 
 class ConfigFile():
     """
-    Master config file handler
+    Base config class
+    Holds base function for config proper file handling
     """
     def __init__(self, config_file):
         """
@@ -318,7 +319,7 @@ class DevEnvConfigFile(ConfigFile):
         Return profile values
 
         Return:
-            dict: dictionnary of master profile::
+            dict: dictionnary of devenv profile::
                 {
                     'profile1': {
                         remote_host,
@@ -439,7 +440,7 @@ class ExecEnvConfigFile(ConfigFile):
         Return profile values
 
         Return:
-            dict: dictionnary of master profile::
+            dict: dictionnary of execenv profile::
                 {
                     'log_file_path': 'path to log file',
                     'mappings': {

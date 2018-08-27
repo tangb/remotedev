@@ -14,7 +14,7 @@ After=network-online.target
 Requires=network-online.target
 
 [Service]
-ExecStart=/usr/bin/remotedev --daemon
+ExecStart=/usr/bin/remotedev --service
 WorkingDirectory=/usr/local/bin
 StandardOutput=syslog
 StandardError=syslog
@@ -41,7 +41,7 @@ PID_PATH=/var/run/
 DAEMON_USER=root
 DAEMON_GROUP=root
 APP=remotedev
-DESC=RemoteDev
+DESC=Sync your dev env with execution env
 
 start_module() {
     start-stop-daemon --start --quiet --background --chuid $DAEMON_USER:$DAEMON_GROUP --pidfile "$3" --make-pidfile --exec "$2" -- "$4"
@@ -58,7 +58,7 @@ start() {
     echo "Starting $DESC..."
     if [ -f "$BIN_PATH$APP" ]
     then
-        start_module "$APP" "$BIN_PATH$APP" "$PID_PATH$APP.pid" "--daemon"
+        start_module "$APP" "$BIN_PATH$APP" "$PID_PATH$APP.pid" "--service"
     fi
 }
 
@@ -120,7 +120,7 @@ esac
 """
 
 DEFAULT_CONFIG = """DAEMON_PROFILE_NAME=None
-DAEMON_MODE='slave'
+DAEMON_MODE='execenv'
 """
 
 class InstallExtraFiles(install):
@@ -158,7 +158,7 @@ class InstallExtraFiles(install):
 setup(
     name = 'remotedev',
     version = VERSION,
-    description = 'Sync your development env to your application execution env'
+    description = 'Sync your development env to your application execution env',
     author = 'Tanguy Bonneau',
     author_email = 'tanguy.bonneau@gmail.com',
     maintainer = 'Tanguy Bonneau',
@@ -170,4 +170,3 @@ setup(
     scripts = ['bin/remotedev', 'bin/remotedev.py'],
     cmdclass = {'install': InstallExtraFiles}
 )
-

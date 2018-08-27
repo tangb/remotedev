@@ -47,9 +47,9 @@ def usage(error=''):
     if len(error) > 0:
         print(u'Error: %s' % error)
         print(u'')
-        print(u'Usage: pyremotedev --master|--slave -D|--dir "directory to watch" <-c|--conf "config filepath"> <-p|--prof "profile"> <-d|--debug> <-h|--help>')
-        print(u' -m|--master: launch remotesync as master, files from watched directory will be sent to remote slave.')
-        print(u' -s|--slave: launch remotesync as slave, app will wait for sync operations.')
+        print(u'Usage: pyremotedev -E|--execenv -D|--devenv <-c|--conf "config filepath"> <-p|--prof "profile name"> <-d|--debug> <-h|--help>')
+        print(u' -E|--execenv: aunch remotedev with execution env behavior, send updated files from mapped directories to development env and send log messages.')
+        print(u' -D|--devenv: launch remotedev with development env behavior, send files from your cloned repo to remote.')
         print(u' -c|--conf: configuration filepath. If not specify use user home dir one')
         print(u' -p|--prof: profile name to launch (doesn\'t launch wizard)')
         print(u' -d|--debug: enable debug.')
@@ -69,16 +69,16 @@ def application_parameters():
     Return:
         dict: list of application parameters::
             {
-                master (bool): True if application is launched as master
-                slave (bool): True if application is launched as slave
+                execenv (bool): True if application is launched in execution environment
+                devenv (bool): True if application is launched in development environment
                 debug (bool): True if debug enabled
                 conf (string): Path of config file to open
                 prof (string): profile name to launch (drop startup select wizard)
             }
     """
     params = {
-        u'master': False,
-        u'slave': False,
+        u'execenv': False,
+        u'devenv': False,
         u'conf' : None,
         u'prof': None,
         u'first_prof': False,
@@ -87,17 +87,17 @@ def application_parameters():
     }
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], u'mshdc:vp:D', [u'master', u'slave', u'help', u'debug', u'conf=', u'version', u'prof=', u'daemon'])
+        opts, args = getopt.getopt(sys.argv[1:], u'EDhdc:vp:S', [u'execenv', u'devenv', u'help', u'debug', u'conf=', u'version', u'prof=', u'service'])
 
         for opt, arg in opts:
-            if opt in (u'-m', u'--master'):
-                if params[u'slave']:
-                    raise Exception(u'You can\'t enable both slave and master mode')
-                params[u'master'] = True
-            elif opt in (u'-s', u'--slave'):
-                if params['master']:
-                    raise Exception(u'You can\'t enable both slave and master mode')
-                params[u'slave'] = True
+            if opt in (u'-E', u'--execenv'):
+                if params[u'devenv']:
+                    raise Exception(u'You can\'t enable both execenv and devenv mode')
+                params[u'execenv'] = True
+            elif opt in (u'-D', u'--devenv'):
+                if params['execenv']:
+                    raise Exception(u'You can\'t enable both execenv and devenv mode')
+                params[u'devenv'] = True
             elif opt in (u'-h', u'--help'):
                 usage()
                 sys.exit(2)
@@ -113,15 +113,15 @@ def application_parameters():
             elif opt in (u'-p', u'--prof'):
                 params[u'prof'] = arg
                 #profile existence will be checked later
-            elif opt in (u'-D', u'--daemon'):
+            elif opt in (u'-S', u'--service'):
                 #daemon mode, use config from /etc/default/pyremotedev.conf
                 params[u'log_file'] = u'/var/log/pyremotedev.log'
-                if DAEMON_MODE == u'master':
-                    params[u'master'] = True
-                    params[u'slave'] = False
+                if DAEMON_MODE == u'execenv':
+                    params[u'execenv'] = True
+                    params[u'devenv'] = False
                 else:
-                    params[u'master'] = False
-                    params[u'slave'] = True
+                    params[u'execenv'] = False
+                    params[u'devenv'] = True
                 if DAEMON_PROFILE_NAME:
                     params[u'prof'] = DAEMON_PROFILE_NAME
                     params[u'first_prof'] = False
@@ -129,16 +129,16 @@ def application_parameters():
                     params[u'first_prof'] = True
 
         #check some parameters
-        if not params[u'master'] and not params[u'slave']:
-            raise Exception(u'You must launch application as master or slave')
+        if not params[u'execenv'] and not params[u'devenv']:
+            raise Exception(u'You must launch application choosing execenv or devenv')
 
         #default config path
         if params[u'conf'] is None:
             path = user_data_dir(APP_NAME, APP_AUTHOR)
-            if params[u'master']:
-                params[u'conf'] = os.path.join(path, u'master.conf')
+            if params[u'execenv']:
+                params[u'conf'] = os.path.join(path, u'execenv.conf')
             else:
-                params[u'conf'] = os.path.join(path, u'slave.conf')
+                params[u'conf'] = os.path.join(path, u'devenv.conf')
 
     except Exception as e:
         #logger.exception('Error parsing command line arguments:')
@@ -154,8 +154,8 @@ def load_profile(params):
     Args:
         params (dict): application parameters
     """
-    #load conf according to master/slave switch
-    if params[u'master']:
+    #load conf according to execenv/devenv switch
+    if params[u'execenv']:
         conf = config.ExecEnvConfigFile(params[u'conf'])
     else:
         conf = config.DevEnvConfigFile(params[u'conf'])
@@ -194,33 +194,31 @@ reset_logging(params[u'log_level'], params[u'log_file'])
 profile = load_profile(params)
 logger.debug('Using profile %s' % profile)
 
-if params[u'master']:
-    logger.info(u'Starting pyremotedev in master mode')
-    #local side: supposed to be the place where developper is working on
+if params[u'execenv']:
+    logger.info(u'Starting remotedev in ExecEnv mode')
     try:
-        master = pyremotedev.PyRemoteExec(profile)
-        master.start()
-        while master.isAlive():
-            master.join(1.0)
+        execenv = pyremotedev.PyRemoteExec(profile)
+        execenv.start()
+        while execenv.isAlive():
+            execenv.join(1.0)
 
     except KeyboardInterrupt:
         pass
 
     except:
-        logger.exception(u'Exception occured during master exceution:')
+        logger.exception(u'Exception occured during execenv process:')
 
     finally:
         logger.info(u'Stopping application...')
-        master.stop()
+        execenv.stop()
 
-    master.join()
+    execenv.join()
 
 else:
-    logger.info(u'Starting pyremotedev in slave mode')
-    #remote side: supposed to the place where files must be updated (ie a raspberry pi)
+    logger.info(u'Starting remotedev in DevEnv mode')
     try:
-        slave = pyremotedev.PyRemoteDev(profile)
-        slave.start()
+        devenv = pyremotedev.PyRemoteDev(profile)
+        devenv.start()
         while True:
             time.sleep(1.0)
 
@@ -228,10 +226,10 @@ else:
         pass
 
     except:
-        logger.exception(u'Exception occured during slave execution:')
+        logger.exception(u'Exception occured during devenv process:')
 
     finally:
         logger.info(u'Stopping application...')
-        slave.stop()
+        devenv.stop()
 
-    slave.join()
+    devenv.join()
