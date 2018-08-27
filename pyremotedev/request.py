@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from hashlib import md5
+
 REQUEST_UNKNOW = 0
 REQUEST_GOODBYE = 1
 REQUEST_FILE = 2
@@ -172,6 +174,8 @@ class RequestFile(Request):
         self.dest = None
         #file content for some actions (create, update)
         self.content = u''
+        #file content md5 needed to avoid circular copy
+        self.md5 = None
 
     def __str__(self):
         """
@@ -193,7 +197,7 @@ class RequestFile(Request):
         else:
             type = self.TYPE_FILE_STR
 
-        return u'RequestFile(action:%s, type:%s, src:%s, dest:%s, content:%d bytes)' % (action, type, self.src, self.dest, len(self.content))
+        return u'RequestFile(action:%s, type:%s, src:%s, dest:%s, content:%d bytes md5:%s)' % (action, type, self.src, self.dest, len(self.content), self.md5)
 
     def log_str(self):
         """
@@ -219,7 +223,7 @@ class RequestFile(Request):
             type_ = self.TYPE_FILE_STR
 
         if self.action in (self.ACTION_UPDATE, self.ACTION_CREATE):
-            return u'%s %s "%s" (%d bytes)' % (action, type_, self.src, len(self.content))
+            return u'%s %s "%s" (%d bytes md5:%s)' % (action, type_, self.src, len(self.content), self.md5)
         elif self.action == self.ACTION_DELETE:
             return u'%s %s "%s"' % (action, type_, self.src)
         else:
@@ -243,6 +247,8 @@ class RequestFile(Request):
                 self.dest = request[key]
             if key == u'content':
                 self.content = request[key]
+            if key == u'md5':
+                self.md5 = request[key]
 
     def to_dict(self):
         """
@@ -255,7 +261,8 @@ class RequestFile(Request):
             u'_type': self._type,
             u'action': self.action,
             u'type': self.type,
-            u'src': self.src
+            u'src': self.src,
+            u'md5': self.md5
         }
         if self.dest:
             out[u'dest'] = self.dest

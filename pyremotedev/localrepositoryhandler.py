@@ -7,6 +7,7 @@ import logging
 from .request import RequestFile
 import os
 import io
+from hashlib import md5
 
 class LocalRepositoryHandler(FileSystemEventHandler):
     """
@@ -156,6 +157,7 @@ class LocalRepositoryHandler(FileSystemEventHandler):
             try:
                 with io.open(event.src_path, u'rb') as src:
                     req.content = src.read()
+                    req.md5 = md5(req.content).hexdigest()
                 if len(req.content) == 0:
                     self.logger.debug('Drop empty file update')
                     return
@@ -190,6 +192,7 @@ class LocalRepositoryHandler(FileSystemEventHandler):
             try:
                 with io.open(event.src_path, u'rb') as src:
                     req.content = src.read()
+                    req.md5 = md5(req.content).hexdigest()
             except Exception:
                 self.logger.exception(u'Unable to read src file "%s"' % event.src_path)
                 return

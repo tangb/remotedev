@@ -71,7 +71,7 @@ class SynchronizerExecEnv(Thread):
             bool: True if already sent
         """
         for history in list(self.__history):
-            if request.action == history.action and request.src == history.src and len(request.content) == len(history.content):
+            if request.action == history.action and request.src == history.src and request.md5 == history.md5:
                 return True
 
         return False
@@ -169,7 +169,7 @@ class SynchronizerExecEnv(Thread):
 
                     elif req[u'_type'] == REQUEST_PING:
                         #received ping request, answer pong
-                        self.logger.error(u'Receive ping request, answer pong')
+                        self.logger.debug(u'Receive ping request, answer pong')
                         request = RequestPong()
                         self.socket.sendobj(request.to_dict())
 
@@ -395,7 +395,7 @@ class SynchronizerDevEnv(Thread):
             bool: True if already sent
         """
         for history in list(self.__history):
-            if request.action == history.action and request.src == history.src and len(request.content) == len(history.content):
+            if request.action == history.action and request.src == history.src and request.md5 == history.md5:
                 return True
 
         return False
