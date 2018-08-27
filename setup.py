@@ -164,7 +164,7 @@ setup(
     maintainer = 'Tanguy Bonneau',
     maintainer_email = 'tanguy.bonneau@gmail.com',
     url = 'http://www.github.com/tangb/remotedev/',
-    packages = ['remotedev'],
+    packages = ['pyremotedev'],
     include_package_data = True,
     install_requires = ['watchdog>=0.8.3', 'bson>=0.5.6', 'sshtunnel>=0.1.4', 'appdirs>=1.4.3', 'pygtail>=0.8.0'],
     scripts = ['bin/remotedev', 'bin/remotedev.py'],
