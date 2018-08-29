@@ -53,8 +53,8 @@ class RequestFileExecutor(Thread):
             for src in list(self.mappings.keys()):
                 src_parts = self.split_path(src)
                 new_src = SEPARATOR.join(src_parts)
-                link_parts = self.split_path(self.mappings[src][u'link'])
-                new_link = SEPARATOR.join(link_parts)
+                #link_parts = self.split_path(self.mappings[src][u'link'])
+                #new_link = SEPARATOR.join(link_parts)
 
                 #always end new src path by separator to protect substitution
                 new_src += SEPARATOR
@@ -63,8 +63,8 @@ class RequestFileExecutor(Thread):
                 self.exec_mappings[new_src] = {
                     u'original_src': src,
                     u'original_dest': self.mappings[src][u'dest'],
-                    u'original_link': self.mappings[src][u'link'],
-                    u'link': new_link
+                    #u'original_link': self.mappings[src][u'link'],
+                    #u'link': new_link
                 }
             self.logger.debug('New mappings: %s' % self.exec_mappings)
         
@@ -133,7 +133,7 @@ class RequestFileExecutor(Thread):
         """
         return {
             u'path': os.path.join(self.source_code_dir, path),
-            u'link': None
+            #u'link': None
         }
 
     def __apply_execution_env_mapping(self, path):
@@ -154,7 +154,7 @@ class RequestFileExecutor(Thread):
             #no mapping configured, copy to current path
             return {
                 u'path': path,
-                u'link': None
+                #u'link': None
             }
 
         else:
@@ -180,7 +180,7 @@ class RequestFileExecutor(Thread):
                     joker = {
                         u'src': self.exec_mappings[mapping_src][u'original_src'],
                         u'dest': self.exec_mappings[mapping_src][u'original_dest'],
-                        u'link': self.exec_mappings[mapping_src][u'original_link']
+                        #u'link': self.exec_mappings[mapping_src][u'original_link']
                     }
 
                 self.logger.debug(' --> %s startswith %s' % (new_path, mapping_src))
@@ -190,7 +190,7 @@ class RequestFileExecutor(Thread):
                     found = {
                         u'src': self.exec_mappings[mapping_src][u'original_src'],
                         u'dest': self.exec_mappings[mapping_src][u'original_dest'],
-                        u'link': self.exec_mappings[mapping_src][u'original_link']
+                        #u'link': self.exec_mappings[mapping_src][u'original_link']
                     }
 
             #switch to joker if no mapping found
@@ -204,13 +204,13 @@ class RequestFileExecutor(Thread):
                     new_path = os.path.join(found[u'dest'], path)
                 else:
                     new_path = path.replace(found[u'src'], found[u'dest'], 1)
-                link = None
-                if found[u'link']:
-                    link = path.replace(found[u'src'], found[u'link'], 1)
+                #link = None
+                #if found[u'link']:
+                #    link = path.replace(found[u'src'], found[u'link'], 1)
 
                 return {
                     u'path': new_path,
-                    u'link': link
+                    #u'link': link
                 }
 
             #no mapping found
@@ -259,7 +259,7 @@ class RequestFileExecutor(Thread):
                     self.logger.debug(u'Unmapped src %s directory. Drop request' % request.src)
                     return False
                 src = src_mapping[u'path']
-                link_src = src_mapping[u'link']
+                #link_src = src_mapping[u'link']
 
             #apply mapping on destination
             if request.dest:
@@ -269,7 +269,7 @@ class RequestFileExecutor(Thread):
                     self.logger.debug(u'Unmapped dest %s directory. Drop request' % request.dest)
                     return False
                 dest = dest_mapping[u'path']
-                link_dest = dest_mapping[u'link']
+                #link_dest = dest_mapping[u'link']
 
             #execute request
             if request.action == RequestFile.ACTION_CREATE:
@@ -289,12 +289,12 @@ class RequestFileExecutor(Thread):
                     fd.close()
 
                     #create link
-                    if link_src and not os.path.exists(link_src):
-                        if not os.path.exists(os.path.dirname(link_src)):
-                            #create non existing link path
-                            os.makedirs(os.path.dirname(link_src))
-                        #create symlink
-                        os.symlink(src, link_src)
+                    #if link_src and not os.path.exists(link_src):
+                    #    if not os.path.exists(os.path.dirname(link_src)):
+                    #        #create non existing link path
+                    #        os.makedirs(os.path.dirname(link_src))
+                    #    #create symlink
+                    #    os.symlink(src, link_src)
 
             elif request.action == RequestFile.ACTION_DELETE:
                 self.logger.debug('Process request DELETE for src=%s' % (src))
@@ -304,10 +304,10 @@ class RequestFileExecutor(Thread):
                         shutil.rmtree(src)
                 else:
                     #remove associated symlink firstly
-                    if link_src:
-                        if os.path.exists(link_src):
-                            self.logger.debug('Remove link_src: %s' % link_src)
-                            os.remove(link_src)
+                    #if link_src:
+                    #    if os.path.exists(link_src):
+                    #        self.logger.debug('Remove link_src: %s' % link_src)
+                    #        os.remove(link_src)
 
                     #delete file
                     if os.path.exists(src):
@@ -317,12 +317,12 @@ class RequestFileExecutor(Thread):
                 self.logger.debug('Process request MOVE for src=%s dest=%s' % (src, dest))
 
                 #remove link firstly
-                if not is_dir:
-                    if link_src and os.path.exists(link_src):
-                        self.logger.debug(u'Remove src symlink %s' % link_src)
-                        os.remove(link_src)
-                        self.logger.debug(u'Create dest symlink %s==>%s' % (dest, link_dest))
-                        os.symlink(dest, link_dest)
+                #if not is_dir:
+                #    if link_src and os.path.exists(link_src):
+                #        self.logger.debug(u'Remove src symlink %s' % link_src)
+                #        os.remove(link_src)
+                #        self.logger.debug(u'Create dest symlink %s==>%s' % (dest, link_dest))
+                #        os.symlink(dest, link_dest)
 
                 #move directory or file
                 if os.path.exists(src):
@@ -341,9 +341,9 @@ class RequestFileExecutor(Thread):
                     fd.close()
 
                     #create link
-                    if link_src and not os.path.exists(link_src):
-                        self.logger.debug(u'Create symlink %s' % link_src)
-                        os.symlink(src, link_src)
+                    #if link_src and not os.path.exists(link_src):
+                    #    self.logger.debug(u'Create symlink %s' % link_src)
+                    #    os.symlink(src, link_src)
 
             else:
                 #unhandled case

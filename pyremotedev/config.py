@@ -578,10 +578,11 @@ class ExecEnvConfigFile(ConfigFile):
         #read mappings
         for src in list(profile[u'mappings'].keys()):
             dest = profile[u'mappings'][src][u'dest']
-            link = u''
-            if profile[u'mappings'][src][u'link']:
-                link = u' & %s' % profile[u'mappings'][src][u'link']
+            #link = u''
+            #if profile[u'mappings'][src][u'link']:
+            #    link = u' & %s' % profile[u'mappings'][src][u'link']
                 
-            mapping += u'[%s=>%s%s]' % (src, dest, link)
+            #mapping += u'[%s=>%s%s]' % (src, dest, link)
+            mapping += u'[%s=>%s]' % (src, dest)
 
         return u'%s: %s%d mappings %s' % (profile_name, log_file, len(profile), mapping)
