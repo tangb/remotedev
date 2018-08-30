@@ -223,11 +223,11 @@ class RequestFile(Request):
             type_ = self.TYPE_FILE_STR
 
         if self.action in (self.ACTION_UPDATE, self.ACTION_CREATE):
-            return u'%s %s "%s" (%d bytes md5:%s)' % (action, type_, self.src, len(self.content), self.md5)
+            return u'%s %s %s (%d bytes md5:%s)' % (action, type_, self.src, len(self.content), self.md5)
         elif self.action == self.ACTION_DELETE:
-            return u'%s %s "%s"' % (action, type_, self.src)
+            return u'%s %s %s' % (action, type_, self.src)
         else:
-            return u'%s %s "%s" to "%s"' % (action, type_, self.src, self.dest)
+            return u'%s %s %s to %s' % (action, type_, self.src, self.dest)
 
     def from_dict(self, request):
         """

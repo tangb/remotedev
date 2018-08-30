@@ -35,7 +35,7 @@ try:
     _unicode = unicode
 except NameError:
     _unicode = str
-from .localrepositoryhandler import LocalRepositoryHandler
+from .file import RequestFileCreator
 from .synchronizer import SynchronizerDevEnv, SynchronizerExecEnv
 
 
@@ -85,7 +85,10 @@ class PyRemoteDev(Thread):
 
         #create filesystem watchdog
         observer = Observer()
-        observer.schedule(LocalRepositoryHandler(synchronizer, self.profile[u'local_dir'], []), path=self.profile[u'local_dir'], recursive=True)
+        observer.schedule(
+            RequestFileCreator(synchronizer.add_request, self.profile[u'local_dir']),
+            path=self.profile[u'local_dir'],
+            recursive=True)
         observer.start()
 
         #main loop
@@ -172,7 +175,10 @@ class PyRemoteExec(Thread):
             drop_files = [self.profile[u'log_file_path']]
             self.logger.debug(u'Create filesystem observer for dir "%s"' % dest)
             observer = Observer()
-            observer.schedule(LocalRepositoryHandler(synchronizer, dest, drop_files), path=dest, recursive=True)
+            observer.schedule(
+                RequestFileCreator(synchronizer.add_request, dest, mappings=self.profile[u'mappings'], drop_files=drop_files),
+                path=dest,
+                recursive=True)
             observer.start()
 
             self.__observers.append(observer)
