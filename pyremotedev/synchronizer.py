@@ -466,7 +466,7 @@ class SynchronizerDevEnv(Thread):
         self.request_file_executor = RequestFileExecutor(self.source_code_dir)
         self.request_file_executor.start()
 
-        #create RequestFileExecutor
+        #create RequestLogExecutor
         self.request_log_executor = RequestLogExecutor(self.remote_host)
         self.request_log_executor.start()
 

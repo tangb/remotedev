@@ -390,7 +390,7 @@ class DevEnvConfigFile(ConfigFile):
                 ssh_password = DEFAULT_SSH_PASSWORD
         ssh_password = ssh_password.replace(u'%', u'%%')
 
-        local_dir = input(u'Local directory to watch (default %s): ' % self.current_local_dir)
+        local_dir = input(u'Dev env absolute source path (default %s): ' % self.current_local_dir)
         if len(local_dir) == 0:
             local_dir = self.current_local_dir
 
@@ -466,16 +466,10 @@ class ExecEnvConfigFile(ConfigFile):
 
             else:
                 #handle dir mapping
-                if profile[src].find(SEPARATOR) >= 0:
-                    (dest, link) = profile[src].split(SEPARATOR)
-
-                else:
-                    dest = profile[src]
-                    link = None
+                dest = profile[src]
 
                 conf[u'mappings'][src] = {
-                    u'dest': dest,
-                    u'link': link
+                    u'dest': dest
                 }
 
         return conf
@@ -515,14 +509,13 @@ class ExecEnvConfigFile(ConfigFile):
                 pass
 
         print(u'')
-        print(u'Now add mappings: source from repository root (local dir) <=> full destination path (remote dir)')
-        print(u'Type "q" to stop adding mappings.')
+        print(u'Now add mappings: (type "q" to stop):')
         
         while True:
             print(u'')
             src = u''
             while len(src) == 0:
-                src = input(u'Source directory (cannot be empty): ')
+                src = input(u'Relative source path on dev env (cannot be empty): ')
                 if src == u'q':
                     break
             if src == u'q':
@@ -530,7 +523,7 @@ class ExecEnvConfigFile(ConfigFile):
 
             dest = u''
             while len(dest) == 0:
-                dest = input(u'Destination directory (cannot be empty): ')
+                dest = input(u'Absolute destination path on exec env (cannot be empty): ')
                 if dest == u'q':
                     break
                 if not os.path.exists(dest):
@@ -539,21 +532,8 @@ class ExecEnvConfigFile(ConfigFile):
             if dest == u'q':
                 break
 
-            link = u''
-            link_ok = False
-            while not link_ok:
-                link = input(u'Create symbolic link into directory (empty when no link): ')
-                if link == u'q' or link == u'':
-                    break
-                if not os.path.exists(link):
-                    print(u' --> Specified path does not exist')
-                    link_ok = False
-                link_ok = True
-            if link == u'q':
-                break
-
             #save new mapping
-            mappings[src] = u'%s%s%s' % (dest, SEPARATOR, link)
+            mappings[src] = u'%s' % (dest)
 
         #return new profile
         return (
@@ -578,11 +558,7 @@ class ExecEnvConfigFile(ConfigFile):
         #read mappings
         for src in list(profile[u'mappings'].keys()):
             dest = profile[u'mappings'][src][u'dest']
-            #link = u''
-            #if profile[u'mappings'][src][u'link']:
-            #    link = u' & %s' % profile[u'mappings'][src][u'link']
-                
-            #mapping += u'[%s=>%s%s]' % (src, dest, link)
+
             mapping += u'[%s=>%s]' % (src, dest)
 
         return u'%s: %s%d mappings %s' % (profile_name, log_file, len(profile), mapping)
