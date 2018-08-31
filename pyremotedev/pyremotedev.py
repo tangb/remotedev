@@ -37,6 +37,7 @@ except NameError:
     _unicode = str
 from .file import RequestFileCreator
 from .synchronizer import SynchronizerDevEnv, SynchronizerExecEnv
+import re
 
 
 class PyRemoteDev(Thread):
@@ -145,6 +146,22 @@ class PyRemoteExec(Thread):
         """
         self.running = False
 
+    def __clean_path(self, path):
+        """
+        Clean path removing eventual pattern within replacing it by empty string
+
+        Args:
+            path (string): path to clean
+        """
+        matches = re.finditer(r'\%\(.*?\)[diouxXeEfFgGcrsa]', path)
+        for _, match in enumerate(matches):
+            pattern = match.group()
+            path = path.replace(pattern, u'')
+            pos = path.find(os.path.sep*2)
+            if pos>=0:
+                path = path[:pos+1]
+        return path
+
     def __start_client(self, clientsocket, ip, port):
         """
         Start client launching a synchronizer and all necessary file observer
@@ -171,7 +188,7 @@ class PyRemoteExec(Thread):
 
         #create filesystem watchdogs on each mappings
         for src in list(self.profile[u'mappings'].keys()):
-            dest = self.profile[u'mappings'][src][u'dest']
+            dest = self.__clean_path(self.profile[u'mappings'][src][u'dest'])
             drop_files = [self.profile[u'log_file_path']]
             self.logger.debug(u'Create filesystem observer for dir "%s"' % dest)
             observer = Observer()
