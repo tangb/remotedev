@@ -316,6 +316,8 @@ class RequestFileCreator(FileSystemEventHandler):
         req = RequestFile()
         req.action = RequestFile.ACTION_UPDATE
         req.type = event_type
+        if req.type == RequestFile.TYPE_DIR and not new_src[u'path'].endswith(os.path.sep):
+            new_src[u'path'] = new_src[u'path'] + os.path.sep
         req.src = new_src[u'path']
         try:
             with io.open(event.src_path, u'rb') as src:
@@ -354,6 +356,11 @@ class RequestFileCreator(FileSystemEventHandler):
         req = RequestFile()
         req.action = RequestFile.ACTION_MOVE
         req.type = self.__get_event_type(event)
+        if req.type == RequestFile.TYPE_DIR:
+            if not new_src[u'path'].endswith(os.path.sep):
+                new_src[u'path'] = new_src[u'path'] + os.path.sep
+            if not new_dest[u'path'].endswith(os.path.sep):
+                new_dest[u'path'] = new_dest[u'path'] + os.path.sep
         req.src = new_src[u'path']
         req.dest = new_dest[u'path']
 
@@ -379,6 +386,8 @@ class RequestFileCreator(FileSystemEventHandler):
         req = RequestFile()
         req.action = RequestFile.ACTION_CREATE
         req.type = self.__get_event_type(event)
+        if req.type == RequestFile.TYPE_DIR and not new_src[u'path'].endswith(os.path.sep):
+            new_src[u'path'] = new_src[u'path'] + os.path.sep
         req.src = new_src[u'path']
         if req.type == RequestFile.TYPE_FILE:
             #send file content
@@ -412,6 +421,8 @@ class RequestFileCreator(FileSystemEventHandler):
         req = RequestFile()
         req.action = RequestFile.ACTION_DELETE
         req.type = self.__get_event_type(event)
+        if req.type == RequestFile.TYPE_DIR and not new_src[u'path'].endswith(os.path.sep):
+            new_src[u'path'] = new_src[u'path'] + os.path.sep
         req.src = new_src[u'path']
 
         #send request
@@ -478,12 +489,12 @@ class FilepathConverter():
     	reverted_src = src
     	reverted_dest = dest
 
-    	matches_src = re.finditer('\(\?P<(.*?)>.*?\)', src)
+    	matches_src = re.finditer(r'\(\?P<(.*?)>.*?\)', src)
     	for _, match_src in enumerate(matches_src):
             pattern_src = match_src.group()
             fieldname = match_src.groups()[0]
     
-            matches_dest = re.finditer('\%\(' + fieldname +'\)[diouxXeEfFgGcrsa]', dest)
+            matches_dest = re.finditer(r'\%\(' + fieldname + r'\)[diouxXeEfFgGcrsa]', dest)
             for _, match_dest in enumerate(matches_dest):
                 pattern_dest = match_dest.group()
 
