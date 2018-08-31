@@ -4,10 +4,6 @@
 import os
 import logging
 import time
-try:
-    import configparser
-except:
-    import ConfigParser as configparser
 import platform
 import sys
 from .consts import DEFAULT_SSH_PORT, DEFAULT_SSH_USERNAME, DEFAULT_SSH_PASSWORD, SEPARATOR
@@ -16,6 +12,75 @@ try:
     input = raw_input
 except Exception:
     pass
+import json
+
+
+
+
+class JsonConfigParser():
+    """
+    Json Config parser
+    Mimic python ConfigParser with json content.
+    Implemented here because RawConfigParser alters option values
+    """
+    def __init__(self):
+        """
+        Constructor
+        """
+        self.content = {}
+
+    def read(self, path):
+        """
+        Read file content and store it internally
+        """
+        with open(path, u'r') as fp:
+            self.content = json.load(fp)
+    
+    def write(self, fp):
+        """
+        Write content to config file
+        """
+        json.dump(self.content, fp)
+
+    def sections(self):
+        """
+        Return sections list
+        """
+        return self.content.keys()
+
+    def options(self, section):
+        """
+        Return sections list
+        """
+        return self.content[section].keys()
+
+    def add_section(self, section):
+        """
+        Add new section
+        """
+        self.content[section] = {}
+
+    def remove_section(self, section):
+        """
+        Remove specified section
+        """
+        del self.content[section]
+
+    def get(self, section, option):
+        """
+        Return sections list
+        """
+        return self.content[section][option]
+
+    def set(self, section, option, value):
+        """
+        Set value to specified section-option
+        """
+        self.content[section][option] = value
+
+
+
+    
 
 class ConfigFile():
     """
@@ -43,13 +108,13 @@ class ConfigFile():
         if not os.path.exists(self.config_file):
             #file doesn't exist, create empty one
             with open(self.config_file, u'w') as fd:
-                fd.write('')
+                fd.write(u'{}')
             #make sure file is written
             time.sleep(1.0)
             self.logger.info(u'Config file written to "%s"' % self.config_file)
 
         #load config parser
-        config = configparser.ConfigParser()
+        config = JsonConfigParser()
         config.read(self.config_file)
 
         return config
@@ -59,7 +124,7 @@ class ConfigFile():
         Save config parser instance to file
 
         Args:
-            config (ConfigParser): config parser instance
+            config (JsonConfigParser): config parser instance
         """
         with open(self.config_file, u'w') as config_file:
             config.write(config_file)
@@ -102,7 +167,7 @@ class ConfigFile():
         Return:
             dict: dict of profile values
         """
-        raise NotImplementedError('Method _get_profile_values must be implemented!')
+        raise NotImplementedError(u'Method _get_profile_values must be implemented!')
 
     def select_profile(self):
         """
@@ -152,7 +217,7 @@ class ConfigFile():
                     dict: dict of new profile values
                 )
         """
-        raise NotImplementedError('Method _get_new_profile_values must be implemented!')
+        raise NotImplementedError(u'Method _get_new_profile_values must be implemented!')
 
     def __delete_profile_menu(self, conf):
         """
@@ -200,7 +265,7 @@ class ConfigFile():
         Return:
             string: entry string
         """
-        raise NotImplementedError('Method _get_profile_entry_string must be implemented!')
+        raise NotImplementedError(u'Method _get_profile_entry_string must be implemented!')
 
     def __load_profile_menu(self, conf):
         """
