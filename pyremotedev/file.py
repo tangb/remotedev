@@ -486,11 +486,11 @@ class FilepathConverter():
             src (string): source path
             dest (string): destination path
         """
-    	reverted_src = src
-    	reverted_dest = dest
+        reverted_src = src
+        reverted_dest = dest
 
-    	matches_src = re.finditer(r'\(\?P<(.*?)>.*?\)', src)
-    	for _, match_src in enumerate(matches_src):
+        matches_src = re.finditer(r'\(\?P<(.*?)>.*?\)', src)
+        for _, match_src in enumerate(matches_src):
             pattern_src = match_src.group()
             fieldname = match_src.groups()[0]
     
