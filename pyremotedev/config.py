@@ -13,6 +13,7 @@ try:
 except Exception:
     pass
 import json
+import collections
 
 
 
@@ -27,14 +28,14 @@ class JsonConfigParser():
         """
         Constructor
         """
-        self.content = {}
+        self.content = collections.OrderedDict()
 
     def read(self, path):
         """
         Read file content and store it internally
         """
         with open(path, u'r') as fp:
-            self.content = json.load(fp)
+            self.content = json.load(fp, object_pairs_hook=collections.OrderedDict)
     
     def write(self, fp):
         """
@@ -58,7 +59,7 @@ class JsonConfigParser():
         """
         Add new section
         """
-        self.content[section] = {}
+        self.content[section] = collections.OrderedDict()
 
     def remove_section(self, section):
         """
@@ -148,9 +149,9 @@ class ConfigFile():
             config = self.__load_config_parser()
 
             #convert config parser to dict
-            profiles = {}
+            profiles = collections.OrderedDict()
             for profile_name in config.sections():
-                profile = {}
+                profile = collections.OrderedDict()
                 for option in config.options(profile_name):
                     profile[option] = config.get(profile_name, option)
                 profiles[profile_name] = self._get_profile_values(profile_name, profile)
@@ -522,7 +523,7 @@ class ExecEnvConfigFile(ConfigFile):
         """
         conf = {
             self.KEY_LOG_FILE: None,
-            u'mappings': {}
+            u'mappings': collections.OrderedDict()
         }
         for src in profile:
             if src == self.KEY_LOG_FILE:
@@ -553,7 +554,7 @@ class ExecEnvConfigFile(ConfigFile):
                     }
                 )
         """
-        mappings = {}
+        mappings = collections.OrderedDict()
 
         profile_name = u''
         while len(profile_name) == 0:
@@ -574,7 +575,7 @@ class ExecEnvConfigFile(ConfigFile):
                 pass
 
         print(u'')
-        print(u'Now add mappings: (type "q" to stop):')
+        print(u'Now add mappings, keep in mind order is kept (type "q" to stop):')
         
         while True:
             print(u'')
