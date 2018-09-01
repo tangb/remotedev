@@ -71,7 +71,15 @@ class SynchronizerExecEnv(Thread):
             bool: True if already sent
         """
         for history in list(self.__history):
-            if request.action == history.action and request.src == history.src and request.md5 == history.md5:
+            if request.action == RequestFile.ACTION_CREATE and request.type == RequestFile.TYPE_FILE and request.action == history.action and request.src == history.src and request.md5 == history.md5:
+                return True
+            elif request.action == RequestFile.ACTION_CREATE and request.type == RequestFile.TYPE_DIR and request.action == history.action and request.src == history.src:
+                return True
+            elif request.action == RequestFile.ACTION_UPDATE and request.type == RequestFile.TYPE_FILE and request.action == history.action and request.src == history.src and request.md5 == history.md5:
+                return True
+            elif request.action == RequestFile.ACTION_DELETE and request.type == RequestFile.TYPE_DIR and request.action == history.action and request.src == history.src:
+                return True
+            elif request.action == RequestFile.ACTION_MOVE and request.action == history.action and request.src == history.src and request.dest == history.dest:
                 return True
 
         return False
@@ -254,7 +262,6 @@ class SynchronizerDevEnv(Thread):
         self.ssh_username = ssh_username
         self.ssh_password = ssh_password
         self.forward_port = forward_port
-        self.__queue = deque(maxlen=200)
         self.tunnel = None
         self.socket = None
         self.__send_socket_attemps = 0
@@ -402,7 +409,7 @@ class SynchronizerDevEnv(Thread):
 
     def add_request(self, request):
         """
-        Add request to queue. The request will be processed as soon as possible
+        Add request and execute last check before sendint it
 
         Args:
             request (Request): request instance
@@ -414,7 +421,6 @@ class SynchronizerDevEnv(Thread):
             self.logger.debug(u' ==> Request dropped to avoid infinite loop: %s' % request)
             return
 
-        #self.__queue.appendleft(request)
         self.__send_request_to_remote(request)
 
     def __send_request_to_remote(self, request):
@@ -492,15 +498,6 @@ class SynchronizerDevEnv(Thread):
             if not self.running:
                 break
 
-            #try:
-            #    req = self.__queue.pop()
-            #    if not self.__send_request_to_remote(req):
-            #        #failed to send request, insert again the request for further retry
-            #        self.__queue.append(req)
-            #except IndexError:
-            #    #no request available
-            #    pass
-
             #receive data
             try:
                 #receive request
@@ -556,9 +553,6 @@ class SynchronizerDevEnv(Thread):
                 if self.logger.getEffectiveLevel() == logging.DEBUG:
                     self.logger.exception('Exception on server process:')
                 self.disconnect()
-
-        #clear queue content
-        #self.__queue.clear()
 
         #disconnect
         self.disconnect()

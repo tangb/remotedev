@@ -538,11 +538,12 @@ class FilepathConverter():
         return out
 
     def __from_dev_env(self, path):
-        self.logger.debug(' -> from_dev_env')
+        self.logger.debug(' => from_dev_env')
         for mapping in self.mappings:
             found = False
             matches = re.finditer(mapping[u'compiled_src'], path)
             for _, match in enumerate(matches):
+                self.logger.debug(u'  => found with %s' % mapping[u'src'])
                 found = True
                 fullmatch = match.group()
                 substitutions = match.groupdict()
@@ -557,11 +558,12 @@ class FilepathConverter():
         return None
 
     def __to_dev_env(self, path):
-        self.logger.debug(' -> to_dev_env')
+        self.logger.debug(' => to_dev_env')
         for mapping in self.mappings:
             found = False
             matches = re.finditer(mapping[u'compiled_reverted_dest'], path)
             for _, match in enumerate(matches):
+                self.logger.debug(u'  => found with %s' % mapping[u'reverted_dest'])
                 found = True
                 fullmatch = match.group()
                 substitutions = match.groupdict()
@@ -583,7 +585,7 @@ class FilepathConverter():
         Returns path before sending it to execution environment
         Remove base path from specified full path
         """
-        self.logger.debug(' -> to_exec_env')
+        self.logger.debug(' => to_exec_env')
         new_path = path.replace(self.path, u'')
         if new_path.startswith('/'):
             new_path = new_path[1:]
@@ -597,7 +599,7 @@ class FilepathConverter():
         Return path when receiving it from execution environment
         Append base path to specified absolute path
         """
-        self.logger.debug(' -> from_exec_env')
+        self.logger.debug(' => from_exec_env')
         new_path = os.path.join(self.path, path)
 
         return {
