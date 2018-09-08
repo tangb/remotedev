@@ -286,9 +286,9 @@ class RequestLog(Request):
         """
         #request type
         self._type = REQUEST_LOG
-        #hold exception record
+        #contain exception record
         self.log_record = None
-        #hold log message
+        #contain log message
         self.log_message = None
 
     def __str__(self):
@@ -301,6 +301,18 @@ class RequestLog(Request):
             return u'RequestLog(log_message: %s)' % self.log_message
         else:
             return u'RequestLog(empty)'
+
+    def is_empty(self):
+        """
+        Return True if empty
+
+        Returns:
+            bool
+        """
+        if self.log_record or self.log_message:
+            return False
+
+        return True
 
     def from_dict(self, request):
         """
@@ -329,3 +341,4 @@ class RequestLog(Request):
         }
 
         return out
+
