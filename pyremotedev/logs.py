@@ -181,6 +181,11 @@ class RequestLogCreator(Thread):
         request = RequestLog()
         request.log_message = message.strip()
 
+        #drop message if empty
+        if request.is_empty():
+            self.logger.debug(u'Drop empty log request')
+            return
+
         #send request
         self.send_request_callback(request)
 
@@ -279,11 +284,12 @@ class RequestLogExecutor():
     This class executes actions when receiving RequestLog
     """
 
-    def __init__(self, remote_host, debug=False):
+    def __init__(self, base_dir, remote_host, debug=False):
         """
         Constructor
 
         Args:
+            base_dir (string): directory of source (place used to store log file)
             remote_host (string): remote host
             debug (bool): enable debug
         """
@@ -293,6 +299,7 @@ class RequestLogExecutor():
             self.logger.setLevel(logging.DEBUG)
         self.remote_logger = None
         self.remote_host = remote_host
+        self.base_dir = base_dir
 
     def stop(self):
         """
@@ -311,7 +318,8 @@ class RequestLogExecutor():
         Init remote logger (logger on development env)
         """
         #create new handler
-        handler = RotatingFileHandler('remote_%s.log' % self.remote_host, maxBytes=2048000, backupCount=2, encoding='utf-8')
+        path = os.path.join(self.base_dir, 'remote_%s.log' % self.remote_host)
+        handler = RotatingFileHandler(path, maxBytes=2048000, backupCount=2, encoding='utf-8')
         formatter = logging.Formatter('%(message)s')
         handler.setFormatter(formatter)
         
@@ -349,5 +357,5 @@ class RequestLogExecutor():
 
         else:
             #invalid log request
-            self.logger.debug(u'No supposed receiving empty log request')
+            self.logger.warning(u'Not supposed receiving empty log request')
 
