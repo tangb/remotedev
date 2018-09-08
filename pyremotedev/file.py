@@ -192,9 +192,12 @@ class RequestFileCreator(FileSystemEventHandler):
         u'.swpx', #vim
         u'.swx', #vim
         u'.tmp', #generic?
-        u'.offset' #pygtail
+        u'.offset', #pygtail
+        u'.pyc', #python compiled
+        u'.log' #log file
     ]
     REJECTED_PREFIXES = [
+        u'.',
         u'~'
     ]
     REJECTED_SUFFIXES = [
@@ -465,7 +468,7 @@ class FilepathConverter():
                 entry = {
                     u'src': src,
                     u'dest': dest,
-                    u'compiled_src': re.compile(src, re.UNICODE | re.DOTALL)
+                    u'compiled_src': re.compile(u'^%s' % src, re.UNICODE | re.DOTALL)
                 }
                 entry.update(self.__revert_mappings(src, dest))
                 self.mappings.append(entry)
@@ -505,7 +508,7 @@ class FilepathConverter():
         return {
             u'reverted_src': reverted_src,
             u'reverted_dest': reverted_dest,
-            u'compiled_reverted_dest': re.compile(reverted_dest, re.UNICODE | re.DOTALL)
+            u'compiled_reverted_dest': re.compile(u'^%s' % reverted_dest, re.UNICODE | re.DOTALL)
         }
 
     def __full_path_split(self, path):
