@@ -473,7 +473,7 @@ class SynchronizerDevEnv(Thread):
         self.request_file_executor.start()
 
         #create RequestLogExecutor
-        self.request_log_executor = RequestLogExecutor(self.remote_host)
+        self.request_log_executor = RequestLogExecutor(self.source_code_dir, self.remote_host)
         self.request_log_executor.start()
 
         receive_attempts = 0
