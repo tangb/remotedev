@@ -189,6 +189,9 @@ class PyRemoteExec(Thread):
         #create filesystem watchdogs on each mappings
         for src in list(self.profile[u'mappings'].keys()):
             dest = self.__clean_path(self.profile[u'mappings'][src][u'dest'])
+            if not os.path.exists(dest):
+                #create missing directory to be able to watch changes
+                os.makedirs(dest)
             drop_files = [self.profile[u'log_file_path']]
             self.logger.debug(u'Create filesystem observer for dir "%s"' % dest)
             observer = Observer()
