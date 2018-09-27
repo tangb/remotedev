@@ -130,7 +130,8 @@ def application_parameters():
 
         #check some parameters
         if not params[u'execenv'] and not params[u'devenv']:
-            raise Exception(u'You must launch application choosing execenv or devenv')
+            params[u'devenv'] = True
+            params[u'execenv'] = False
 
         #default config path
         if params[u'conf'] is None:
