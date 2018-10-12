@@ -22,8 +22,8 @@ logger = logging.getLogger(u'main')
 #default config (linux only)
 DAEMON_PROFILE_NAME = None
 DAEMON_MODE = None
-if platform.system() == 'Linux' and os.path.exists('/etc/default/pyremotedev.conf'):
-    exec(open('/etc/default/pyremotedev.conf').read(), globals())
+if platform.system() == 'Linux' and os.path.exists('/etc/default/remotedev.conf'):
+    exec(open('/etc/default/remotedev.conf').read(), globals())
 
 
 def reset_logging(level, to_file=None):
@@ -47,14 +47,15 @@ def usage(error=''):
     if len(error) > 0:
         print(u'Error: %s' % error)
         print(u'')
-        print(u'Usage: pyremotedev -E|--execenv -D|--devenv <-c|--conf "config filepath"> <-p|--prof "profile name"> <-d|--debug> <-h|--help>')
-        print(u' -E|--execenv: aunch remotedev with execution env behavior, send updated files from mapped directories to development env and send log messages.')
-        print(u' -D|--devenv: launch remotedev with development env behavior, send files from your cloned repo to remote.')
-        print(u' -c|--conf: configuration filepath. If not specify use user home dir one')
-        print(u' -p|--prof: profile name to launch (doesn\'t launch wizard)')
-        print(u' -d|--debug: enable debug.')
-        print(u' -v|--version: display version.')
-        print(u' -h|--help: display this help.')
+
+    print(u'Usage: remotedev -E|--execenv -D|--devenv <-c|--conf "config filepath"> <-p|--prof "profile name"> <-d|--debug> <-h|--help>')
+    print(u' -E|--execenv: launch remotedev with execution env behavior, send updated files from mapped directories to development env and send log messages.')
+    print(u' -D|--devenv: launch remotedev with development env behavior, send files from your cloned repo to remote.')
+    print(u' -c|--conf: configuration filepath. If not specify use user home dir one')
+    print(u' -p|--prof: profile name to launch (doesn\'t launch wizard)')
+    print(u' -d|--debug: enable debug.')
+    print(u' -v|--version: display version.')
+    print(u' -h|--help: display this help.')
 
 def version():
     """
@@ -114,8 +115,8 @@ def application_parameters():
                 params[u'prof'] = arg
                 #profile existence will be checked later
             elif opt in (u'-S', u'--service'):
-                #daemon mode, use config from /etc/default/pyremotedev.conf
-                params[u'log_file'] = u'/var/log/pyremotedev.log'
+                #daemon mode, use config from /etc/default/remotedev.conf
+                params[u'log_file'] = u'/var/log/remotedev.log'
                 if DAEMON_MODE == u'execenv':
                     params[u'execenv'] = True
                     params[u'devenv'] = False
@@ -130,6 +131,7 @@ def application_parameters():
 
         #check some parameters
         if not params[u'execenv'] and not params[u'devenv']:
+            #select devenv by default
             params[u'devenv'] = True
             params[u'execenv'] = False
 
