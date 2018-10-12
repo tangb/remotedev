@@ -14,7 +14,7 @@ After=network-online.target
 Requires=network-online.target
 
 [Service]
-ExecStart=/usr/bin/remotedev --service
+ExecStart=/usr/local/bin/remotedev --service
 WorkingDirectory=/usr/local/bin
 StandardOutput=syslog
 StandardError=syslog
