@@ -61,7 +61,7 @@ def version():
     """
     Display version
     """
-    print(u'%s version %s' % (os.path.splitext(__file__)[0], version.VERSION))
+    print(u'%s version %s' % (os.path.splitext(__file__)[0], VERSION))
 
 def application_parameters():
     """
